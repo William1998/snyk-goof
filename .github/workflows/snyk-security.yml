@@ -1,18 +1,70 @@
-name: Example workflow using Snyk
-on: push
+name: Snyk Security Scan
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+
 jobs:
-  security:
+  snyk-security:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@master
-      - name: Run Snyk to check for vulnerabilities
-        uses: snyk/actions/node@master
-        continue-on-error: true # To make sure that SARIF upload gets called
+      # 1. Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # -----------------------------------------------------------
+      # 2. SETUP ENVIRONMENT & INSTALL DEPENDENCIES (Added Request)
+      # -----------------------------------------------------------
+      # Example: Node.js Setup.
+      # If using Python, use 'actions/setup-python' and 'pip install'.
+      # If using Java, use 'actions/setup-java' and 'mvn install'.
+      
+      # - name: Setup Node.js
+      #   uses: actions/setup-node@v4
+      #   with:
+      #     node-version: '18' # Adjust version as needed
+          
+      # - name: Install Project Dependencies
+      #   run: npm install
+        # For Python: run: pip install -r requirements.txt
+        # For Java:   run: mvn install -DskipTests
+
+      # -----------------------------------------------------------
+      # 3. SETUP SNYK & RUN SCANS
+      # -----------------------------------------------------------
+      
+      - name: Setup Snyk CLI
+        uses: snyk/actions/setup@master
+      
+      - name: Set API Endpoint
         env:
-          SNYK_TOKEN: 6eb759c2-d048-42f7-a2d4-f002744ec399
-        with:
-          args: --sarif-file-output=snyk.sarif
-      - name: Upload result to GitHub Code Scanning
-        uses: github/codeql-action/upload-sarif@v3
-        with:
-          sarif_file: snyk.sarif
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        run: snyk config set endpoint=https://api.au.snyk.io
+
+      # Snyk Open Source (SCA) - Relies on the 'npm install' step above
+      - name: Snyk Open Source (SCA)
+        run: snyk test --severity-threshold=high
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true 
+
+      # Snyk Code (SAST)
+      - name: Snyk Code (SAST)
+        # ADD --org=YOUR_ORG_SLUG HERE
+        run: snyk code test --severity-threshold=high --org=c0a9d14a-1e2b-4806-bf7f-b27c76d2c503
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
+
+      # # Build Docker Image (Required for Container Scanning)
+      # - name: Build Docker Image
+      #   run: docker build . -t my-app:latest
+
+      # # Snyk Container
+      # - name: Snyk Container
+      #   run: snyk container test my-app:latest --file=Dockerfile --severity-threshold=high
+      #   env:
+      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      #   continue-on-error: true
