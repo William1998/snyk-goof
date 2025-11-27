@@ -58,13 +58,13 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
 
-      # # Build Docker Image (Required for Container Scanning)
-      # - name: Build Docker Image
-      #   run: docker build . -t my-app:latest
+      # Build Docker Image (Required for Container Scanning)
+      - name: Build Docker Image
+        run: docker build . -t node:6-stretch
 
-      # # Snyk Container
-      # - name: Snyk Container
-      #   run: snyk container test my-app:latest --file=Dockerfile --severity-threshold=high
-      #   env:
-      #     SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      #   continue-on-error: true
+      # Snyk Container
+      - name: Snyk Container
+        run: snyk container monitor node:6-stretch --file=Dockerfile --severity-threshold=high
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        continue-on-error: true
