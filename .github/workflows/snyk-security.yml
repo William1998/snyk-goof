@@ -53,7 +53,7 @@ jobs:
       # Snyk Code (SAST)
       - name: Snyk Code (SAST)
         # ADD --org=YOUR_ORG_SLUG HERE
-        run: snyk code test --severity-threshold=high --org=c0a9d14a-1e2b-4806-bf7f-b27c76d2c503
+        run: snyk code test --report --project-name=github_actions --severity-threshold=high --org=c0a9d14a-1e2b-4806-bf7f-b27c76d2c503
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         continue-on-error: true
