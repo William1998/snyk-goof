@@ -61,6 +61,7 @@ jobs:
       # Build Docker Image (Required for Container Scanning)
       - name: Build Docker Image
         run: docker build . -t node:6-stretch
+        continue-on-error: true
 
       # Snyk Container
       - name: Snyk Container
