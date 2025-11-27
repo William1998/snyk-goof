@@ -36,7 +36,7 @@ jobs:
       # -----------------------------------------------------------
       
       - name: Setup Snyk CLI
-        uses: snyk/actions/setup@master
+        uses: snyk/actions/setup@806182742461562b67788a64410098c9d9b96adb
       
       - name: Set API Endpoint
         env:
